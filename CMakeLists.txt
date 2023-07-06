@@ -5,6 +5,7 @@
 PROJECT ( YUV C CXX )	# "C" is required even for C++ projects
 CMAKE_MINIMUM_REQUIRED( VERSION 2.8.12 )
 OPTION( UNIT_TEST "Built unit tests" OFF )
+option( YUV_BUILD_TOOLS "Build the utility programs" ON)
 
 SET ( ly_base_dir	${PROJECT_SOURCE_DIR} )
 SET ( ly_src_dir	${ly_base_dir}/source )
@@ -38,12 +39,14 @@ if(WIN32)
 endif()
 
 # this creates the conversion tool
-ADD_EXECUTABLE			( yuvconvert ${ly_base_dir}/util/yuvconvert.cc )
-TARGET_LINK_LIBRARIES	( yuvconvert ${ly_lib_static} )
+if(YUV_BUILD_TOOLS)
+  ADD_EXECUTABLE			( yuvconvert ${ly_base_dir}/util/yuvconvert.cc )
+  TARGET_LINK_LIBRARIES	( yuvconvert ${ly_lib_static} )
 
-# this creates the yuvconstants tool
-ADD_EXECUTABLE      ( yuvconstants ${ly_base_dir}/util/yuvconstants.c )
-TARGET_LINK_LIBRARIES  ( yuvconstants ${ly_lib_static} )
+  # this creates the yuvconstants tool
+  ADD_EXECUTABLE      ( yuvconstants ${ly_base_dir}/util/yuvconstants.c )
+  TARGET_LINK_LIBRARIES  ( yuvconstants ${ly_lib_static} )
+endif()
 
 find_package ( JPEG )
 if (JPEG_FOUND)
@@ -94,7 +97,9 @@ endif()
 
 
 # install the conversion tool, .so, .a, and all the header files
-INSTALL ( PROGRAMS ${CMAKE_BINARY_DIR}/yuvconvert			DESTINATION bin )
+if(YUV_BUILD_TOOLS)
+  INSTALL ( PROGRAMS ${CMAKE_BINARY_DIR}/yuvconvert			DESTINATION bin )
+endif()
 INSTALL ( TARGETS ${ly_lib_static}						DESTINATION lib )
 INSTALL ( TARGETS ${ly_lib_shared} LIBRARY				DESTINATION lib RUNTIME DESTINATION bin )
 INSTALL ( DIRECTORY ${PROJECT_SOURCE_DIR}/include/		DESTINATION include )
